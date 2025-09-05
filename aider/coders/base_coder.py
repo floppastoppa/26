@@ -485,17 +485,22 @@ class Coder:
                 yield fname, content
 
     def choose_fence(self):
-        all_content = ""
+        all_lines = []
         for _fname, content in self.get_abs_fnames_content():
-            all_content += content + "\n"
+            all_lines.extend(content.splitlines())
         for _fname in self.abs_read_only_fnames:
             content = self.io.read_text(_fname)
             if content is not None:
-                all_content += content + "\n"
+                all_lines.extend(content.splitlines())
 
         good = False
         for fence_open, fence_close in self.fences:
-            if fence_open in all_content or fence_close in all_content:
+            found = False
+            for line in all_lines:
+                if line.startswith(fence_open) or line.startswith(fence_close):
+                    found = True
+                    break
+            if found:
                 continue
             good = True
             break
